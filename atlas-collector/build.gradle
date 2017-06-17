@@ -1,0 +1,21 @@
+plugins {
+    id 'java'
+    id 'org.springframework.boot' version '1.5.4.RELEASE'
+}
+
+repositories {
+    mavenLocal()
+    mavenCentral()
+    maven { url 'https://repo.spring.io/libs-snapshot' }
+}
+
+dependencies {
+    compile 'org.springframework.boot:spring-boot-starter-web'
+    compile 'org.springframework.metrics:spring-metrics:0.5.1.RC-1'
+    compile 'org.springframework:spring-aop'
+    compile 'com.netflix.spectator:spectator-reg-atlas:latest.release'
+}
+
+task wrapper(type: Wrapper) {
+    gradleVersion = '3.5'
+}
