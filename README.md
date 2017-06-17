@@ -54,34 +54,39 @@ There were 2,683,053 Java sources referring to Guava on May 31, 2017!
 
 ### Creating a Dataproc Cluster:
 
-Initially followed these instructions, but the public dataproc-initialization-actions
-bucket is fine:
-
-https://cloudacademy.com/blog/big-data-using-apache-spark-and-zeppelin-on-google-cloud-dataproc/
-https://medium.com/google-cloud/dataproc-spark-cluster-on-gcp-in-minutes-3843b8d8c5f8
-
-In advanced settings, install the initializer:
+Create a new Dataproc cluster (the default `cluster-1` name is fine), with a 4 core master, and 4 nodes (4 cores each). In advanced settings, install the initializer:
 
 `gs://dataproc-initialization-actions/zeppelin/zeppelin.sh`
 
-Add the sample Atlas collector service from spring-metrics to the master node:
+After the cluster is up, add the sample Atlas collector service from spring-metrics to the master node:
 
 1) `gcloud compute scp atlas-collector/build/libs/atlas-collector.jar cluster-1-m:~/atlas-collector.jar --compress`
 2) SSH into the master
 3) `nohup java -jar atlas-collector.jar > /dev/null 2>&1&`
 4) To prove Atlas is running: `curl -s 'http://localhost:7101/api/v1/tags'`
 
-Follow the instructions here to set up a socks5 SSH tunnel:
+Follow the instructions [here](https://cloud.google.com/dataproc/docs/concepts/cluster-web-interfaces) to set up a socks5 SSH tunnel:
 
-https://cloud.google.com/dataproc/docs/concepts/cluster-web-interfaces
+1) `gcloud compute ssh --ssh-flag="-D 1080" --ssh-flag="-N" --ssh-flag="-n" cluster-1-m`
+2) `/Applications/Google\ Chrome.app/Contents/MacOS/Google\ Chrome --proxy-server="socks5://localhost:1080" --host-resolver-rules="MAP * 0.0.0.0 , EXCLUDE localhost" --user-data-dir=/tmp/` (can be left open even when the SSH tunnel is closed)
 
-You can open your local browser to `localhost:8080` to access Zeppelin.
-`localhost:4040` has the Spark UI
+Through the socks5-enabled browser:
+1) `localhost:8080` to access Zeppelin.
+2) `localhost:4040` to access Spark UI
+3) `localhost:7101` is where Atlas is running.
 
 On the Spark interpreter configuration, set `spark.executor.memory` to 4g. Otherwise,
 memory pressure starts to build up on parsing, slowing it down substantially.
 
-### Metrics on parsing
+Import the Guava notebook from `zeppelin/Guava.json`.
+
+### Metrics
+
+Some paragraphs of the Zeppelin notebook define RDD transformations that ship timings to Atlas running on the master.
+
+#### Parsing
+
+Here is the query to monitor the AST parsing stage:
 
 http://localhost:7101/api/v1/graph?q=name,parse,:eq,statistic,count,:eq,:and,source+file+count,:legend,1,:axis,name,parse,:eq,statistic,totalTime,:eq,:and,name,parse,:eq,statistic,count,:eq,:and,:div,average+latency,:legend,2,:lw&tz=US/Central&l=0&title=Rewrite+Source+Parsing&ylabel.0=seconds&ylabel.1=sources/second&s=e-20m
 
