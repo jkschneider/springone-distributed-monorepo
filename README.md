@@ -52,11 +52,13 @@ Also, I promise, this is the last simple text searching we will need to do!
 
 There were 2,683,053 Java sources referring to Guava on May 31, 2017!
 
-### Creating a Dataproc Cluster:
+### Step 4: Creating a Dataproc Cluster:
 
 Create a new Dataproc cluster (the default `cluster-1` name is fine), with a 4 core master, and 4 nodes (4 cores each). In advanced settings, install the initializer:
 
 `gs://dataproc-initialization-actions/zeppelin/zeppelin.sh`
+
+### Step 5: Configure the Dataproc Cluster:
 
 After the cluster is up, add the sample Atlas collector service from spring-metrics to the master node:
 
@@ -78,9 +80,11 @@ Through the socks5-enabled browser:
 On the Spark interpreter configuration, set `spark.executor.memory` to 4g. Otherwise,
 memory pressure starts to build up on parsing, slowing it down substantially.
 
-Import the Guava notebook from `zeppelin/Guava.json`.
+### Step 6: Run the fixit job!
 
-### Metrics
+Import the Guava notebook from `zeppelin/Guava.json` and run it!
+
+### Appendix A. Metrics
 
 Some paragraphs of the Zeppelin notebook define RDD transformations that ship timings to Atlas running on the master.
 
