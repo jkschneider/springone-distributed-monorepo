@@ -11,7 +11,7 @@ In options, save the results of this query to: `myproject:gradle_summit.java_fil
 You will have to allow large results as well. This is a fairly cheap query (336 GB).
 
 ```sql
-SELECT * FROM [bigquery-public-data:github_repos.files] 
+SELECT * FROM [bigquery-public-data:github_repos.files]
 WHERE RIGHT(path, 5) = '.java'
 ```
 
@@ -52,28 +52,6 @@ Also, I promise, this is the last simple text searching we will need to do!
 
 There were 2,683,053 Java sources referring to Guava on May 31, 2017!
 
-### Exporting to Google Cloud Storage
-
-I created a Regional storage bucket called `gradle-summit-rewrite`
-and exported the `myproject:gradle_summit.java_file_contents_guava` table
-to it with a GCS path of `gs://gradle-summit-rewrite/guava*`, selecting
-CSV and GZIP compression.
-
-The extract takes about 2 minutes and generates about 55 ~80mb files in
-your bucket.
-
-### Downloading the sources
-
-First run:
-
-```
-curl https://sdk.cloud.google.com | bash
-gcloud auth application-default login
-```
-
-Then run `Step1DownloadFromGoogleCloudStorage`. This populates a local
-folder called *bucket* with the contents of your GCS bucket.
-
 ### Creating a Dataproc Cluster:
 
 Initially followed these instructions, but the public dataproc-initialization-actions
@@ -88,7 +66,10 @@ In advanced settings, install the initializer:
 
 Add the sample Atlas collector service from spring-metrics to the master node:
 
-`gcloud compute scp build/libs/sample-atlas-collector.jar cluster-1-m:~/atlas-collector --compress`
+1) `gcloud compute scp atlas-collector/build/libs/atlas-collector.jar cluster-1-m:~/atlas-collector.jar --compress`
+2) SSH into the master
+3) `nohup java -jar atlas-collector.jar > /dev/null 2>&1&`
+4) To prove Atlas is running: `curl -s 'http://localhost:7101/api/v1/tags'`
 
 Follow the instructions here to set up a socks5 SSH tunnel:
 
@@ -102,7 +83,7 @@ memory pressure starts to build up on parsing, slowing it down substantially.
 
 ### Metrics on parsing
 
-http://localhost:7101/api/v1/graph?q=name,parse,:eq,statistic,count,:eq,:and,source+file+count,:legend,1,:axis,name,parse,:eq,statistic,totalTime,:eq,:and,name,parse,:eq,statistic,count,:eq,:and,:div,average+latency,:legend,2,:lw&tz=US/Central&s=e-10m&l=0&title=Rewrite+Source+Parsing&ylabel.0=seconds&ylabel.1=sources/second
+http://localhost:7101/api/v1/graph?q=name,parse,:eq,statistic,count,:eq,:and,source+file+count,:legend,1,:axis,name,parse,:eq,statistic,totalTime,:eq,:and,name,parse,:eq,statistic,count,:eq,:and,:div,average+latency,:legend,2,:lw&tz=US/Central&l=0&title=Rewrite+Source+Parsing&ylabel.0=seconds&ylabel.1=sources/second&s=e-20m
 
 Parsing tends to take around 0.12s per Java source file.
 Rate of about 6.5 sources per second per core = 25 sources per second per node.

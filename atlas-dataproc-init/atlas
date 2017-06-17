@@ -1,0 +1,68 @@
+#!/bin/sh
+#
+# /etc/init.d/atlas
+# Subsystem file for "Atlas" server
+#
+# chkconfig: 2345 95 05  (1)
+# description: Atlas server daemon
+
+ATLAS_VERSION=1.5.3
+RETVAL=0
+prog="atlas"
+
+mkdir -p /opt/atlas
+sudo curl -Lo /opt/atlas/memory.conf https://raw.githubusercontent.com/Netflix/atlas/v1.5.x/conf/memory.conf
+sudo curl -Lo /opt/atlas/atlas-$ATLAS_VERSION-standalone.jar https://github.com/Netflix/atlas/releases/download/v$ATLAS_VERSION/atlas-$ATLAS_VERSION-standalone.jar
+
+start() {
+  echo -n $"Starting $prog:"
+  nohup java -jar /opt/atlas/atlas-$ATLAS_VERSION-standalone.jar /opt/atlas/memory.conf > /dev/null 2>&1&
+  RETVAL=$?
+  echo
+}
+
+stop() {
+  echo -n $"Stopping $prog:"
+  killproc $prog -TERM
+  RETVAL=$?
+  echo
+}
+
+reload() {  (8)
+  echo -n $"Reloading $prog:"
+  killproc $prog -HUP
+  RETVAL=$?
+  echo
+}
+
+case "$1" in
+  start)
+    start
+    ;;
+  stop)
+    stop
+    ;;
+  restart)
+    stop
+    start
+    ;;
+  reload)
+    reload
+    ;;
+  condrestart)
+    if [ -f /var/lock/subsys/$prog ] ; then
+      stop
+      # avoid race
+      sleep 3
+      start
+    fi
+    ;;
+  status)
+    status $prog
+    RETVAL=$?
+    ;;
+  *)  (10)
+    echo $"Usage: $0 {start|stop|restart|reload|condrestart|status}"
+    RETVAL=1
+esac
+exit $RETVAL
