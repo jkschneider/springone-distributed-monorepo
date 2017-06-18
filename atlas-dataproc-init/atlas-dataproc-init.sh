@@ -1,9 +1,25 @@
 #!/bin/sh
 
-# This is what needs to happen to set up /etc/init.d/atlas, somehow
+# This init script installs Netflix Atlas on the master node of a Cloud
+# Dataproc cluster. It also installs and runs a spring-metrics enabled
+# Spring Boot application that publishes timer metrics to Atlas.
 
-sudo curl -Lo /etc/init.d/atlas https://gist.githubusercontent.com/jkschneider/3d8594e1dd8d78ae3e5cb63089cd72d1/raw/3cfbbaa5d1e15cdff1f5f55080318d8f8334e2b2/atlas
-sudo chmod 755 /etc/init.d/atlas
-sudo chown root:root /etc/init.d/atlas
+set -x -e
 
-sudo /etc/init.d/atlas start
+# Only run on the master node
+ROLE="$(/usr/share/google/get_metadata_value attributes/dataproc-role)"
+
+if [[ "${ROLE}" == 'Master' ]]; then
+  echo "Installing Atlas daemon"
+
+  curl -Lo /etc/init.d/atlas https://raw.githubusercontent.com/jkschneider/gradle-summit-2017/master/atlas-dataproc-init/atlas
+  chmod 755 /etc/init.d/atlas
+  chown root:root /etc/init.d/atlas
+
+  /etc/init.d/atlas start
+
+  # Start a Spring Boot service that keeps track of timers on behalf of Spark workers
+  echo "Installing Atlas collector"
+  curl -Lo /opt/atlas-collector.jar 'https://dl.bintray.com/jkschneider/maven/io/jschneider/atlas-collector/0.1.0/atlas-collector-0.1.0.jar'
+  nohup java -jar /opt/atlas-collector.jar > /dev/null 2>&1&
+fi
