@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 # This init script installs Netflix Atlas on the master node of a Cloud
 # Dataproc cluster. It also installs and runs a spring-metrics enabled
