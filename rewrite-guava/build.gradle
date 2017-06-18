@@ -1,0 +1,40 @@
+plugins {
+    id 'java'
+    id 'nebula.optional-base' version '3.1.0'
+    id 'nebula.maven-publish' version '5.1.0'
+    id 'com.jfrog.bintray' version '1.7.3'
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    compile 'com.netflix.devinsight.rewrite:rewrite-core:1.2.4:jdkbundle'
+
+    testCompile 'com.google.guava:guava:18.0'
+    testCompile 'junit:junit:4.+'
+    testCompile 'org.assertj:assertj-core:3.+'
+}
+
+group = 'io.jschneider'
+version = '0.1.0'
+
+bintray {
+    user = property('bintrayUser')
+    key = property('bintrayKey')
+    publications = ['nebula']
+
+    pkg {
+        repo = 'maven'
+        name = 'rewrite-guava'
+        websiteUrl = 'https://github.com/jkschneider/gradle-summit-2017'
+        issueTrackerUrl = 'https://github.com/jkschneider/gradle-summit-2017/issues'
+        vcsUrl = 'https://github.com/jkschneider/gradle-summit-2017.git'
+        licenses = ['Apache-2.0']
+        version {
+            name = project.version
+            vcsTag = project.version
+        }
+    }
+}
