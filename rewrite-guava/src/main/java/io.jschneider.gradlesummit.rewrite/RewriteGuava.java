@@ -9,7 +9,7 @@ import java.util.List;
 public class RewriteGuava {
     public static List<String> listIssues(Tr.CompilationUnit cu) {
         List<String> problems = new ArrayList<>();
-        
+
         if (cu.hasType("com.google.common.util.concurrent.FutureFallback"))
            problems.add("FutureFallback");
         if (cu.hasType("com.google.common.io.InputSupplier"))
@@ -38,7 +38,7 @@ public class RewriteGuava {
         return problems;
     }
 
-    public static Refactor refactor(Tr.CompilationUnit cu) {
+    public static String refactor(Tr.CompilationUnit cu, String path) {
         Refactor refactor = cu.refactor();
 
         refactor.changeMethodTargetToStatic(
@@ -75,6 +75,6 @@ public class RewriteGuava {
                 "com.google.common.base.Objects.ToStringHelper",
                 "com.google.common.base.MoreObjects.ToStringHelper");
 
-        return refactor;
+        return refactor.diff().replaceAll("([ab])/.*/\\w+\\.java", "$1/" + path);
     }
 }

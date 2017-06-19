@@ -5,11 +5,12 @@ plugins {
 }
 
 repositories {
+    mavenLocal()
     mavenCentral()
 }
 
 dependencies {
-    compile 'com.netflix.devinsight.rewrite:rewrite-core:1.2.4:jdkbundle'
+    compile 'com.netflix.devinsight.rewrite:rewrite-core:1.2.5:jdkbundle'
 
     testCompile 'com.google.guava:guava:18.0'
     testCompile 'junit:junit:4.+'
@@ -17,7 +18,7 @@ dependencies {
 }
 
 group = 'io.jschneider'
-version = '0.1.0'
+version = '0.2.0'
 
 bintray {
     user = property('bintrayUser')

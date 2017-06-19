@@ -54,18 +54,24 @@ There were 2,683,053 Java sources referring to Guava on May 31, 2017!
 
 ### Step 4: Creating a Dataproc Cluster:
 
-Create a new Dataproc cluster (the default `cluster-1` name is fine), with a 4 core master, and 4 nodes (4 cores each). In advanced settings, install the initializer:
+#### From the command line
 
-`gs://dataproc-initialization-actions/zeppelin/zeppelin.sh`
+`gcloud dataproc clusters create cluster-1 \
+  --initialization-actions gs://dataproc-initialization-actions/zeppelin/zeppelin.sh,gs://gradle-summit-2017-rewrite/atlas-dataproc-init.sh \
+  -z us-central1-a \
+  --master-boot-disk-size=100GB \
+  --worker-boot-disk-size=100GB`
 
-### Step 5: Configure the Dataproc Cluster:
+#### Through the console UI
 
-After the cluster is up, add the sample Atlas collector service from spring-metrics to the master node:
+Create a new Dataproc cluster (the default `cluster-1` name is fine), with a 4 core master, and 2 nodes (4 cores each). In advanced settings, install the initializers:
 
-1) `gcloud compute scp atlas-collector/build/libs/atlas-collector.jar cluster-1-m:~/atlas-collector.jar --compress`
-2) SSH into the master
-3) `nohup java -jar atlas-collector.jar > /dev/null 2>&1&`
-4) To prove Atlas is running: `curl -s 'http://localhost:7101/api/v1/tags'`
+1) `gs://dataproc-initialization-actions/zeppelin/zeppelin.sh`
+2) `gs://gradle-summit-2017-rewrite/atlas-dataproc-init.sh`
+
+You can reduce the disk size of both the master and workers to 100GB.
+
+### Step 5: Establish a SOCKS5 proxy and configure the Spark interpreter
 
 Follow the instructions [here](https://cloud.google.com/dataproc/docs/concepts/cluster-web-interfaces) to set up a socks5 SSH tunnel:
 
