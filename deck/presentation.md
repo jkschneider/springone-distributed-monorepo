@@ -5,10 +5,11 @@ slidenumbers: true
 # across GitHub
 
 ### Jon Schneider
-### Pivotal, Inc.
+### Spring Team @ Pivotal, Inc.
 ### `@jon_k_schneider`
+#### <br/><br/><br/>github.com/jkschneider/gradle-summit-2017
 
-![](img/sample-code.png)
+![175%](img/sample-code.png)
 
 ---
 
@@ -24,7 +25,7 @@ slidenumbers: true
 
 ---
 
-> Part 1: Rewriting code
+> **Part 1:** Rewriting code
 
 ---
 
@@ -76,10 +77,8 @@ assert(cu.firstClass().getSimpleName().equals("A"));
 Tr.CompilationUnit cu = new OracleJdkParser().parse(aSource);
         assertThat(cu.print()).isEqualTo(aSource);
 
-cu.firstClass()
-  .methods().get(0)
-  .getBody()
-  .getStatements()
+cu.firstClass().methods().get(0) // first method
+  .getBody().getStatements() // method contents
   .forEach(t -> System.out.println(t.printTrimmed()));
 ```
 
@@ -87,13 +86,12 @@ cu.firstClass()
 
 # We can find method calls and fields from the AST.
 
-![inline, 70%](img/find-method.png)
+![inline, 100%](img/find-method.png)
 
 ```java
 Tr.CompilationUnit cu = new OracleJdkParser().parse(aSource);
 
 assertThat(cu.findMethodCalls("java.util.Arrays asList(..)")).hasSize(1);
-
 assertThat(cu.firstClass().findFields("java.util.Arrays")).isEmpty();
 ```
 
@@ -101,15 +99,14 @@ assertThat(cu.firstClass().findFields("java.util.Arrays")).isEmpty();
 
 # We can find types from the AST.
 
-![inline, 70%](img/has-type.png)
+![inline, 100%](img/has-type.png)
 
 ```java
 assertThat(cu.hasType("java.util.Arrays")).isTrue();
 assertThat(cu.hasType(Arrays.class)).isTrue();
 
 assertThat(cu.findType(Arrays.class))
-  .hasSize(1)
-  .hasOnlyElementsOfType(Tr.Ident.class);
+  .hasSize(1).hasOnlyElementsOfType(Tr.Ident.class);
 ```
 
 ---
@@ -150,7 +147,7 @@ refactor.fix().print();
 
 ---
 
-# `refactor-guava` contains all the rules for our Guava transformation.
+# **refactor-guava** contains all the rules for our Guava transformation.
 
 ![](img/refactor-guava.png)
 
@@ -167,7 +164,7 @@ refactor.diff();
 
 ---
 
-> Part 2: Using BigQuery to find all Guava code in Github
+> **Part 2:** Using BigQuery to find all Guava code in Github
 
 ---
 
@@ -227,7 +224,7 @@ WHERE content CONTAINS 'import com.google.common'
 
 ---
 
-> Part 3: Employing our refactoring rule at scale on Google Cloud Dataproc.
+> **Part 3:** Employing our refactoring rule at scale on Google Cloud Dataproc.
 
 ---
 
@@ -244,7 +241,7 @@ Defaults OK with two initialization actions:
 
 ---
 
-# Monitoring our Spark workers with Atlas
+# Monitoring our Spark workers with Atlas and **spring-metrics**
 
 ```java
 @SpringBootApplication
@@ -254,18 +251,28 @@ public class AtlasCollector {
         SpringApplication.run(AtlasCollector.class, args);
     }
 }
+```
 
+# ...
+
+---
+
+# Monitoring our Spark workers with Atlas and **spring-metrics**
+
+```java
 @RestController
 @Timed // (2)
 class TimerController {
-    @Autowired MeterRegistry registry; // (3)
-    final Map<String, Timer> timers = new ConcurrentHashMap<>();
+  @Autowired MeterRegistry registry; // (3)
+  Map<String, Timer> timers =
+      new ConcurrentHashMap<>();
 
-    @PostMapping("/api/timer/{name}/{timeNanos}")
-    public void time(@PathVariable String name, @PathVariable Long timeNanos) {
-        timers.computeIfAbsent(name, registry::timer)
-            .record(timeNanos, TimeUnit.NANOSECONDS); // (4)
-    }
+  @PostMapping("/api/timer/{name}/{timeNanos}")
+  public void time(@PathVariable String name,
+    @PathVariable Long timeNanos) {
+      timers.computeIfAbsent(name, registry::timer)
+          .record(timeNanos, TimeUnit.NANOSECONDS); // (4)
+  }
 }
 ```
 
@@ -307,4 +314,12 @@ class TimerController {
 
 # We found a healthy number of issues.
 
-![inline](img/issues-count.png)
+![right, fit](img/issues-count.png)
+
+---
+
+> **Epilogue:** The *rewrite-gradle* plugin
+
+---
+
+> **Thanks for attending!**
