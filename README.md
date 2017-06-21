@@ -139,7 +139,7 @@ GET /api/v1/graph?
 Host: localhost:7101
 ```
 
-### Results
+### Appendix B. Results
 
 The last paragraph of the Zeppelin notebook creates a BigQuery table with the diffs
 required to patch affected repos.
