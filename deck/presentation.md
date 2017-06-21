@@ -24,13 +24,13 @@ slidenumbers: true
 
 ---
 
-# Part 1: Rewriting code
+> Part 1: Rewriting code
 
 ---
 
 # Rewrite is a programmatic refactoring tool.
 
-![120%](img/rewrite-on-github.png)
+![inline 120%](img/rewrite-on-github.png)
 
 ---
 
@@ -167,14 +167,15 @@ refactor.diff();
 
 ---
 
-# Part 2: Using BigQuery to find all Guava code in Github
+> Part 2: Using BigQuery to find all Guava code in Github
 
 ---
 
 # Identify all Java sources from BigQuery's Github copy.
 
 ```sql
-SELECT * FROM [bigquery-public-data:github_repos.files]
+SELECT *
+FROM [bigquery-public-data:github_repos.files]
 WHERE RIGHT(path, 5) = '.java'
 ```
 
@@ -188,7 +189,10 @@ You will have to allow large results as well. This is a fairly cheap query (336 
 ```sql
 SELECT *
 FROM [bigquery-public-data:github_repos.contents]
-WHERE id IN (SELECT id FROM [myproject:gradle_summit.java_files])
+WHERE id IN (
+  SELECT id
+  FROM [myproject:gradle_summit.java_files]
+)
 ```
 
 *Note*: This will eat into your $300 credits.
@@ -201,8 +205,10 @@ It cost me ~$6 (1.94 TB).
 Getting cheaper now...
 
 ```sql
-SELECT repo_name, path, content FROM [myproject:gradle_summit.java_file_contents] contents
-INNER JOIN [myproject:gradle_summit.java_files] files ON files.id = contents.id
+SELECT repo_name, path, content
+FROM [myproject:gradle_summit.java_file_contents] contents
+INNER JOIN [myproject:gradle_summit.java_files] files
+  ON files.id = contents.id
 WHERE content CONTAINS 'import com.google.common'
 ```
 
@@ -221,13 +227,13 @@ WHERE content CONTAINS 'import com.google.common'
 
 ---
 
-# Part 3: Employing our refactoring rule at scale on Google Cloud Dataproc.
+> Part 3: Employing our refactoring rule at scale on Google Cloud Dataproc.
 
 ---
 
 # Create a Spark/Zeppelin cluster on Google Cloud Dataproc.
 
-Two initialization actions:
+Defaults OK with two initialization actions:
 
 1) `gs://dataproc-initialization-actions/zeppelin/zeppelin.sh`
 2) `gs://gradle-summit-2017-rewrite/atlas-dataproc-init.sh`
@@ -265,7 +271,27 @@ class TimerController {
 
 ---
 
-# We'll scale the cluster to 128 preemtible VMs and go!
+# We'll write the job in a Zeppelin notebook.
+
+1) Select sources from BigQuery
+2) Map over all the rows, parsing and running the refactor rule.
+3) Export our results back to BigQuery.
+
+---
+
+# Measuring how big our cluster needs to be
+
+1) Rewrite averages 0.12s per Java source file
+1) Rate of 6.25 sources per core / second
+2) With 128 preemptible VMs, we've got:
+    *512 cores * 6.25 sources / core / second*
+
+# 3,200 sources / second =
+# ~13 minutes total
+
+---
+
+# We'll scale the cluster to 128 preemptible VMs and go!
 
 ![inline](img/source-parsing-3k.png)
 

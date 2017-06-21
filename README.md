@@ -1,8 +1,23 @@
-# Rewriting Guava problems in Github
+# Gradle Summit 2017 - Distributed Refactoring across Github
+
+## Introduction
+
+This repository contains the speaker notes plus instructions for replicating the
+entire experiment featured in Jon's talk on distributed refactoring with Netflix Rewrite.
+
+The following instructions help you run the Rewrite rule we created in `rewrite-guava` at
+cloud scale on Google Cloud Dataproc against Google's latest snapshot of Github sources.
+
+The experiment can be run for less than $20 on Google Cloud Dataproc, so runs easily with
+the $300 credits Google provides on its free tier.
+
+## Talk Video
+
+`TODO: When the talk is available after the conference, check back!`
 
 ## BigQuery
 
-I've created a project in my Google Cloud account called `github-166820`.
+I've created a project in my Google Cloud account.
 Substitute your own project name for `myproject` in the queries below.
 
 ### Step 1: Identify all Java sources
@@ -88,7 +103,10 @@ memory pressure starts to build up on parsing, slowing it down substantially.
 
 ### Step 6: Run the fixit job!
 
-Import the Guava notebook from `zeppelin/Guava.json` and run it!
+Import the Guava notebook from `zeppelin/Guava.json`. You should change the project name
+in the two paragraphs that interact with BigQuery.
+
+Run it!
 
 ### Appendix A. Metrics
 
@@ -96,11 +114,32 @@ Some paragraphs of the Zeppelin notebook define RDD transformations that ship ti
 
 #### Parsing
 
-Here is the query to monitor the AST parsing stage:
+Here is the query to monitor the AST parsing stage. This should be run in your browser
+window that is connected to the SOCKS5 proxy.
 
 http://localhost:7101/api/v1/graph?q=name,parse,:eq,statistic,count,:eq,:and,source+file+count,:legend,1,:axis,name,parse,:eq,statistic,totalTime,:eq,:and,name,parse,:eq,statistic,count,:eq,:and,:div,average+latency,:legend,2,:lw&tz=US/Central&l=0&title=Rewrite+Source+Parsing&ylabel.0=seconds&ylabel.1=sources/second&s=e-20m
 
-Parsing tends to take around 0.12s per Java source file.
-Rate of about 6.5 sources per second per core = 25 sources per second per node.
+```http
+GET /api/v1/graph?
+       q=
+       name,parse,:eq,statistic,count,:eq,:and,
+        source+file+count,:legend,
+        1,:axis,
+      name,parse,:eq,statistic,totalTime,:eq,:and,
+        name,parse,:eq,statistic,count,:eq,:and,
+        :div,
+        average+latency,:legend,
+        2,:lw
+      &tz=US/Central
+      &l=0
+      &title=Rewrite+Source+Parsing
+      &ylabel.0=seconds
+      &ylabel.1=sources/second
+      &s=e-20m
+Host: localhost:7101
+```
 
-2,590,078/2,687,984 Java sources were parseable by Rewrite = 96.3%.
+### Results
+
+The last paragraph of the Zeppelin notebook creates a BigQuery table with the diffs
+required to patch affected repos.
