@@ -8,7 +8,7 @@ slidenumbers: true
 ### Pivotal, Inc.
 ### `@jon_k_schneider`
 
-![](sample-code.png)
+![](img/sample-code.png)
 
 ---
 
@@ -30,13 +30,13 @@ slidenumbers: true
 
 # Rewrite is a programmatic refactoring tool.
 
-![120%](rewrite-on-github.png)
+![120%](img/rewrite-on-github.png)
 
 ---
 
 # Suppose we have a simple class A.
 
-![inline](sample-code.png)
+![inline](img/sample-code.png)
 
 ---
 
@@ -56,7 +56,7 @@ assert(cu.firstClass().getSimpleName().equals("A"));
 
 # The Rewrite AST covers the whole Java language.
 
-![inline](sample-code-embedded.png)
+![inline](img/sample-code-embedded.png)
 
 ---
 
@@ -70,7 +70,7 @@ assert(cu.firstClass().getSimpleName().equals("A"));
 
 # Rewrite's AST preserves formatting.
 
-![inline, 100%](weird-formatting.png)![inline, 100%](print-trimmed.png)
+![inline, 100%](img/weird-formatting.png)![inline, 100%](img/print-trimmed.png)
 
 ```java
 Tr.CompilationUnit cu = new OracleJdkParser().parse(aSource);
@@ -87,7 +87,7 @@ cu.firstClass()
 
 # We can find method calls and fields from the AST.
 
-![inline, 70%](find-method.png)
+![inline, 70%](img/find-method.png)
 
 ```java
 Tr.CompilationUnit cu = new OracleJdkParser().parse(aSource);
@@ -101,7 +101,7 @@ assertThat(cu.firstClass().findFields("java.util.Arrays")).isEmpty();
 
 # We can find types from the AST.
 
-![inline, 70%](has-type.png)
+![inline, 70%](img/has-type.png)
 
 ```java
 assertThat(cu.hasType("java.util.Arrays")).isTrue();
@@ -116,7 +116,7 @@ assertThat(cu.findType(Arrays.class))
 
 # Suppose we have a class referring to a deprecated Guava method.
 
-![inline](guava-deprecated-reference.png)
+![inline](img/guava-deprecated-reference.png)
 
 ---
 
@@ -141,7 +141,7 @@ refactor.changeMethodName(
 
 # The fixed code emitted from Refactor can be used to overwrite the original source.
 
-![inline, 100%](guava-deprecated-fixed.png)
+![inline, 100%](img/guava-deprecated-fixed.png)
 
 ```java
 // emits a string containing the fixed code, style preserved
@@ -152,13 +152,13 @@ refactor.fix().print();
 
 # `refactor-guava` contains all the rules for our Guava transformation.
 
-![](refactor-guava.png)
+![](img/refactor-guava.png)
 
 ---
 
 # Or we can emit a diff that can be used with `git apply`
 
-![right, fit](guava-deprecated-diff.png)
+![right, fit](img/guava-deprecated-diff.png)
 
 ```java
 // emits a String containing the diff
@@ -267,13 +267,13 @@ class TimerController {
 
 # We'll scale the cluster to 128 preemtible VMs and go!
 
-![inline](source-parsing-3k.png)
+![inline](img/source-parsing-3k.png)
 
 ---
 
 # Some source files are too badly formed to parse.
 
-![inline](total-parsed.png)
+![inline](img/total-parsed.png)
 
 2,590,062/2,687,984 Java sources = 96.4%.
 
@@ -281,4 +281,4 @@ class TimerController {
 
 # We found a healthy number of issues.
 
-![inline](issues-count.png)
+![inline](img/issues-count.png)
