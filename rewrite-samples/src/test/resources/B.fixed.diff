@@ -1,0 +1,24 @@
+diff --git a/B.java b/B.java
+index cf08ec7..14f2241 100644
+--- a/B.java
++++ b/B.java
+@@ -1,15 +1,15 @@
+ package io.jschneider.gradlesummit.rewrite;
+
+-import com.google.common.base.Objects;
++import com.google.common.base.MoreObjects;
+ import com.google.common.util.concurrent.MoreExecutors;
+
+ public class B {
+     void foo() {
+-        Objects.firstNonNull(
++        MoreObjects.firstNonNull(
+                 null,
+                 "hi"
+         );
+
+-        MoreExecutors.sameThreadExecutor();
++        MoreExecutors.directExecutor();
+     }
+ }
+

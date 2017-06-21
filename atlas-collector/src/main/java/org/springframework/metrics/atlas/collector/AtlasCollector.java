@@ -18,7 +18,6 @@ import java.util.concurrent.TimeUnit;
 
 @SpringBootApplication
 @EnableAtlasMetrics
-@EnableScheduling
 public class AtlasCollector {
     public static void main(String[] args) {
         SpringApplication.run(AtlasCollector.class, args);
@@ -28,13 +27,12 @@ public class AtlasCollector {
 @RestController
 @Timed
 class TimerController {
-    @Autowired
-    MeterRegistry registry;
-
+    @Autowired MeterRegistry registry;
     final Map<String, Timer> timers = new ConcurrentHashMap<>();
 
     @PostMapping("/api/timer/{name}/{timeNanos}")
     public void time(@PathVariable String name, @PathVariable Long timeNanos) {
-        timers.computeIfAbsent(name, registry::timer).record(timeNanos, TimeUnit.NANOSECONDS);
+        timers.computeIfAbsent(name, registry::timer)
+            .record(timeNanos, TimeUnit.NANOSECONDS);
     }
 }
