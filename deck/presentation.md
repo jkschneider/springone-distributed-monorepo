@@ -13,15 +13,11 @@ slidenumbers: true
 
 ---
 
-# TODO Guava blowing up at runtime.
-
----
-
 # We will tackle this in 3 parts.
 
-* Netflix Rewrite to refactor them
-* Google BigQuery to find Java files
-* Zeppelin/Spark on Dataproc to compute
+1. Netflix Rewrite to refactor them
+2. Google BigQuery to find Java files
+3. Zeppelin/Spark on Dataproc to run at scale
 
 ---
 
@@ -121,8 +117,8 @@ assertThat(cu.findType(Arrays.class))
 
 ```java
 Tr.CompilationUnit cu = new OracleJdkParser().parse(bSource);
-
 Refactor refactor = cu.refactor();
+
 refactor.changeMethodTargetToStatic(
   cu.findMethodCalls("com.google..Objects firstNonNull(..)"),
   "com.google.common.base.MoreObjects"
@@ -161,6 +157,39 @@ refactor.fix().print();
 // emits a String containing the diff
 refactor.diff();
 ```
+
+---
+
+> **Intermezzo:** The *io.spring.rewrite* plugin
+
+---
+
+# Just annotate a static method to define a refactor rule.
+
+```java
+@AutoRewrite(value = "reactor-mono-flatmap",
+             description = "change flatMap to flatMapMany")
+public static void migrateMonoFlatMap(Refactor refactor) {
+  // a compilation unit for the source file we are refactoring
+  Tr.CompilationUnit cu = refactor.getOriginal();
+
+  refactor.changeMethodName(
+    cu.findMethodCalls("reactor..Mono flatMap(..)"),
+    "flatMapMany");
+}
+```
+
+---
+
+# We have some handy Gradle tasks.
+
+To generate a report of what should be refactored in your project based on the `@AutoRewrite` methods found, run:
+
+`./gradlew lintSource`
+
+To automatically fix your code (preserving all of your beautiful code style), run:
+
+`./gradlew fixSourceLint && git diff`
 
 ---
 
@@ -220,28 +249,21 @@ WHERE content CONTAINS 'import com.google.common'
 # We now have the dataset to run our refactoring rule on.
 
 1. 2.6 million Java source files.
-2. TODO Github repositories.
+2. 47,565 Github repositories.
 
 ---
 
-> **Part 3:** Employing our refactoring rule at scale on Google Cloud Dataproc.
+> **Part 3:** Employing our refactoring rule at scale on <br/>Google Cloud Dataproc.
 
 ---
 
 # Create a Spark/Zeppelin cluster on Google Cloud Dataproc.
 
-Defaults OK with two initialization actions:
-
-1) `gs://dataproc-initialization-actions/zeppelin/zeppelin.sh`
-2) `gs://gradle-summit-2017-rewrite/atlas-dataproc-init.sh`
+![inline, 100%](img/dataproc-cluster.png)
 
 ---
 
-# TODO Diagram of the cluster showing Atlas and collector running on master
-
----
-
-# Monitoring our Spark workers with Atlas and **spring-metrics**
+# Monitoring our Spark workers with <br/>Atlas and **spring-metrics**
 
 ```java
 @SpringBootApplication
@@ -257,7 +279,7 @@ public class AtlasCollector {
 
 ---
 
-# Monitoring our Spark workers with Atlas and **spring-metrics**
+# Monitoring our Spark workers with <br/>Atlas and **spring-metrics**
 
 ```java
 @RestController
@@ -280,27 +302,34 @@ class TimerController {
 
 # We'll write the job in a Zeppelin notebook.
 
-1) Select sources from BigQuery
-2) Map over all the rows, parsing and running the refactor rule.
-3) Export our results back to BigQuery.
+1. Select sources from BigQuery
+2. Map over all the rows, parsing and running the refactor rule.
+3. Export our results back to BigQuery.
 
 ---
 
-# Measuring how big our cluster needs to be
+# Measuring our initial pass.
 
-1) Rewrite averages 0.12s per Java source file
-1) Rate of 6.25 sources per core / second
-2) With 128 preemptible VMs, we've got:
+![inline](img/parsing-small-cluster.png)
+
+---
+
+# Measuring how big our cluster needs to be.
+
+1. Rewrite averages 0.12s per Java source file
+2. Rate of 6.25 sources per core / second
+3. With 128 preemptible VMs, we've got:
     *512 cores * 6.25 sources / core / second*
 
-# 3,200 sources / second =
-# ~13 minutes total
+# 3,200 sources / second = ~13 minutes total
+
+We hope...
 
 ---
 
-# We'll scale the cluster to 128 preemptible VMs and go!
+# After scaling up the cluster with a bunch of cheap VMs.
 
-![inline](img/source-parsing-3k.png)
+![inline, fit](img/parsing-large-cluster.png)
 
 ---
 
@@ -316,9 +345,16 @@ class TimerController {
 
 ![right, fit](img/issues-count.png)
 
+* 4,860 of 47,565 projects with problems
+* 10.2% of projects with Guava references use deprecated API
+* 42,794 source files with problems
+* 70,641 lines of code affected
+
+Full results at <br/>*gs://gradle-summit-2017-rewrite/diffs.csv*
+
 ---
 
-> **Epilogue:** The *rewrite-gradle* plugin
+> *Epilogue:* Issuing PRs for all the patches
 
 ---
 

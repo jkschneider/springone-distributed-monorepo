@@ -2,14 +2,15 @@
 
 ## Introduction
 
-This repository contains the speaker notes plus instructions for replicating the
+This repository contains the speaker deck plus instructions for replicating the
 entire experiment featured in Jon's talk on distributed refactoring with Netflix Rewrite.
 
 The following instructions help you run the Rewrite rule we created in `rewrite-guava` at
 cloud scale on Google Cloud Dataproc against Google's latest snapshot of Github sources.
 
-The experiment can be run for less than $20 on Google Cloud Dataproc, so runs easily with
-the $300 credits Google provides on its free tier.
+The experiment can be run for less than $20 on Google Cloud Dataproc, so runs easily with the $300 credits Google provides on its free tier.
+
+The speaker deck is located at `deck/presentation.pdf`.
 
 ## Talk Video
 
