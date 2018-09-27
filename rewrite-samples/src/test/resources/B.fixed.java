@@ -1,9 +1,9 @@
-import com.google.common.base.Objects;
+import com.google.common.base.MoreObjects;
 import com.google.common.util.concurrent.MoreExecutors;
 
 public class B {
     void foo() {
-        Objects.firstNonNull(
+        MoreObjects.firstNonNull(
                 null,
                 "hi"
         );
@@ -11,3 +11,4 @@ public class B {
         MoreExecutors.directExecutor();
     }
 }
+

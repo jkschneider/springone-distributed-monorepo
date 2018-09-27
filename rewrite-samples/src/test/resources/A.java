@@ -1,4 +1,4 @@
-package io.jschneider.gradlesummit.rewrite;
+package io.springoneplatform.rewrite;
 
 import java.util.*;
 
@@ -11,3 +11,6 @@ public class A {
         );
     }
 }
+
+
+

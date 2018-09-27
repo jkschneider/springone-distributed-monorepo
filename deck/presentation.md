@@ -1,23 +1,16 @@
-footer: github.com/jkschneider/gradle-summit-2017
 slidenumbers: true
 
-# Distributed Refactoring
-# across GitHub
+# Spinnaker and the Distributed Monorepo
 
 ### Jon Schneider
 ### Spring Team @ Pivotal, Inc.
 ### `@jon_k_schneider`
-#### <br/><br/><br/>github.com/jkschneider/gradle-summit-2017
-
-![175%](img/sample-code.png)
 
 ---
 
-# We will tackle this in 3 parts.
+# Stitching together source, binaries, and deployed assets.
 
-1. Netflix Rewrite to refactor them
-2. Google BigQuery to find Java files
-3. Zeppelin/Spark on Dataproc to run at scale
+![inline](img/source-binary-spinnaker.png)
 
 ---
 
@@ -143,12 +136,6 @@ refactor.fix().print();
 
 ---
 
-# **refactor-guava** contains all the rules for our Guava transformation.
-
-![](img/refactor-guava.png)
-
----
-
 # Or we can emit a diff that can be used with `git apply`
 
 ![right, fit](img/guava-deprecated-diff.png)
@@ -160,7 +147,9 @@ refactor.diff();
 
 ---
 
-> **Intermezzo:** The *io.spring.rewrite* plugin
+# **refactor-guava** contains all the rules for our Guava transformation.
+
+![](img/refactor-guava.png)
 
 ---
 
@@ -181,18 +170,6 @@ public static void migrateMonoFlatMap(Refactor refactor) {
 
 ---
 
-# We have some handy Gradle tasks.
-
-To generate a report of what should be refactored in your project based on the `@AutoRewrite` methods found, run:
-
-`./gradlew lintSource`
-
-To automatically fix your code (preserving all of your beautiful code style), run:
-
-`./gradlew fixSourceLint && git diff`
-
----
-
 > **Part 2:** Using BigQuery to find all Guava code in Github
 
 ---
@@ -205,7 +182,7 @@ FROM [bigquery-public-data:github_repos.files]
 WHERE RIGHT(path, 5) = '.java'
 ```
 
-^ In options, save the results of this query to: `myproject:gradle_summit.java_files`.
+^ In options, save the results of this query to: `myproject:springone.java_files`.
 You will have to allow large results as well. This is a fairly cheap query (336 GB).
 
 ---
@@ -217,7 +194,7 @@ SELECT *
 FROM [bigquery-public-data:github_repos.contents]
 WHERE id IN (
   SELECT id
-  FROM [myproject:gradle_summit.java_files]
+  FROM [myproject:springone.java_files]
 )
 ```
 
@@ -232,15 +209,15 @@ Getting cheaper now...
 
 ```sql
 SELECT repo_name, path, content
-FROM [myproject:gradle_summit.java_file_contents] contents
-INNER JOIN [myproject:gradle_summit.java_files] files
+FROM [myproject:springone.java_file_contents] contents
+INNER JOIN [myproject:springone.java_files] files
   ON files.id = contents.id
 WHERE content CONTAINS 'import com.google.common'
 ```
 
-^Notice we are going to join just enough data from `gradle_summit.java_files` and `gradle_summit:java_file_contents` in order to be able to construct our PRs.
+^Notice we are going to join just enough data from `springone.java_files` and `springone:java_file_contents` in order to be able to construct our PRs.
 
-^Save the result to `myproject:gradle_summit.java_file_contents_guava`.
+^Save the result to `myproject:springone.java_file_contents_guava`.
 
 ^Through Step 3, we have cut down the size of the initial BigQuery public dataset from 1.94 TB to around 25 GB. Much more manageable!
 
@@ -350,11 +327,19 @@ We hope...
 * 42,794 source files with problems
 * 70,641 lines of code affected
 
-Full results at <br/>*gs://gradle-summit-2017-rewrite/diffs.csv*
-
 ---
 
 > *Epilogue:* Issuing PRs for all the patches
+
+---
+
+# Generate a single patch file per repo.
+
+```sql
+SELECT repo, GROUP_CONCAT_UNQUOTED(diff, '\n\n') as patch
+FROM [cf-sandbox-jschneider:springone.diffs]
+GROUP BY repo
+```
 
 ---
 

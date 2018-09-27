@@ -3,7 +3,7 @@ index cf08ec7..14f2241 100644
 --- a/B.java
 +++ b/B.java
 @@ -1,15 +1,15 @@
- package io.jschneider.gradlesummit.rewrite;
+ package io.springoneplatform.rewrite;
 
 -import com.google.common.base.Objects;
 +import com.google.common.base.MoreObjects;

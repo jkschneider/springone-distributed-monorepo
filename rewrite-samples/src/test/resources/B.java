@@ -1,4 +1,4 @@
-package io.jschneider.gradlesummit.rewrite;
+package io.springoneplatform.rewrite;
 
 import com.google.common.base.Objects;
 import com.google.common.util.concurrent.MoreExecutors;

@@ -1,4 +1,4 @@
-# Gradle Summit 2017 - Distributed Refactoring across Github
+# SpringOne Platform 2018 - Spinnaker and the Distributed Monorepo
 
 ## Introduction
 
@@ -12,10 +12,6 @@ The experiment can be run for less than $20 on Google Cloud Dataproc, so runs ea
 
 The speaker deck is located at `deck/presentation.pdf`.
 
-## Talk Video
-
-`TODO: When the talk is available after the conference, check back!`
-
 ## BigQuery
 
 I've created a project in my Google Cloud account.
@@ -23,7 +19,7 @@ Substitute your own project name for `myproject` in the queries below.
 
 ### Step 1: Identify all Java sources
 
-In options, save the results of this query to: `myproject:gradle_summit.java_files`.
+In options, save the results of this query to: `myproject:springone.java_files`.
 You will have to allow large results as well. This is a fairly cheap query (336 GB).
 
 ```sql
@@ -39,10 +35,10 @@ It cost me approximately $6 (1.94 TB) when I ran it on May 31.
 ```sql
 SELECT *
 FROM [bigquery-public-data:github_repos.contents]
-WHERE id IN (SELECT id FROM [myproject:gradle_summit.java_files])
+WHERE id IN (SELECT id FROM [myproject:springone.java_files])
 ```
 
-Save the results of this query to: `myproject:gradle_summit.java_file_contents`.
+Save the results of this query to: `myproject:springone.java_file_contents`.
 Again, allow large results as well.
 
 ### Step 3: Identify Guava related sources
@@ -51,15 +47,15 @@ Things start getting cheaper now because we are dealing with smaller and smaller
 (95.6 GB).
 
 ```sql
-SELECT repo_name, path, content FROM [myproject:gradle_summit.java_file_contents] contents
-INNER JOIN [myproject:gradle_summit.java_files] files ON files.id = contents.id
+SELECT repo_name, path, content FROM [myproject:springone.java_file_contents] contents
+INNER JOIN [myproject:springone.java_files] files ON files.id = contents.id
 WHERE content CONTAINS 'import com.google.common'
 ```
 
-Notice we are going to join just enough data from `gradle_summit.java_files`
-and `gradle_summit:java_file_contents` in order to be able to construct our PRs.
+Notice we are going to join just enough data from `springone.java_files`
+and `springone:java_file_contents` in order to be able to construct our PRs.
 
-Save the result to `myproject:gradle_summit.java_file_contents_guava`.
+Save the result to `myproject:springone.java_file_contents_guava`.
 
 Through Step 3, we have cut down the size of the initial BigQuery public dataset
 from 1.94 TB to around 25 GB. Much more manageable!
@@ -73,7 +69,7 @@ There were 2,683,053 Java sources referring to Guava on May 31, 2017!
 #### From the command line
 
 `gcloud dataproc clusters create cluster-1 \
-  --initialization-actions gs://dataproc-initialization-actions/zeppelin/zeppelin.sh,gs://gradle-summit-2017-rewrite/atlas-dataproc-init.sh \
+  --initialization-actions gs://dataproc-initialization-actions/zeppelin/zeppelin.sh,gs://springone-2018-rewrite/atlas-dataproc-init.sh \
   -z us-central1-a \
   --master-boot-disk-size=100GB \
   --worker-boot-disk-size=100GB`
@@ -83,7 +79,7 @@ There were 2,683,053 Java sources referring to Guava on May 31, 2017!
 Create a new Dataproc cluster (the default `cluster-1` name is fine), with a 4 core master, and 2 nodes (4 cores each). In advanced settings, install the initializers:
 
 1) `gs://dataproc-initialization-actions/zeppelin/zeppelin.sh`
-2) `gs://gradle-summit-2017-rewrite/atlas-dataproc-init.sh`
+2) `gs://springone-2018-rewrite/atlas-dataproc-init.sh`
 
 You can reduce the disk size of both the master and workers to 100GB.
 
