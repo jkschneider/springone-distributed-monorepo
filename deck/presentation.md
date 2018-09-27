@@ -3,14 +3,32 @@ slidenumbers: true
 # Spinnaker and the Distributed Monorepo
 
 ### Jon Schneider
-### Spring Team @ Pivotal, Inc.
 ### `@jon_k_schneider`
+#### github.com/jkschneider/springone-distributed-monorepo
+
+---
+
+> **Part 1:** The Spinnaker resource model
+
+---
+
+# CI and CD have distinct orbits
+
+![inline](img/orbits.png)
 
 ---
 
 # Stitching together source, binaries, and deployed assets.
 
 ![inline](img/source-binary-spinnaker.png)
+
+---
+
+> **Part 2:** Generate a binary callgraph to search for method level vulnerabilities
+
+---
+
+![fit](img/snyk.png)
 
 ---
 
