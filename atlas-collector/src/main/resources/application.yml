@@ -1,2 +1,2 @@
-atlas.step: PT10S
+management.metrics.export.atlas.step: 10s
 server.port: 8101

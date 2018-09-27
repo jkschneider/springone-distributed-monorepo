@@ -1,8 +1,7 @@
 plugins {
     id 'java'
-    id 'org.springframework.boot' version '1.5.4.RELEASE'
-    id 'nebula.maven-publish' version '5.1.0'
-    id 'com.jfrog.bintray' version '1.7.3'
+    id 'org.springframework.boot' version '2.0.5.RELEASE'
+    id 'io.spring.dependency-management' version '1.0.6.RELEASE'
 }
 
 repositories {
@@ -11,29 +10,9 @@ repositories {
 
 dependencies {
     compile 'org.springframework.boot:spring-boot-starter-web'
-    compile 'org.springframework.metrics:spring-metrics:0.5.1.RELEASE'
+    compile 'io.micrometer:micrometer-registry-atlas'
     compile 'org.springframework:spring-aop'
-    compile 'com.netflix.spectator:spectator-reg-atlas:latest.release'
 }
 
-group = 'io.jschneider'
+group = 'io.springoneplatform'
 version = '0.1.0'
-
-bintray {
-    user = property('bintrayUser')
-    key = property('bintrayKey')
-    publications = ['nebula']
-
-    pkg {
-        repo = 'maven'
-        name = 'atlas-collector'
-        websiteUrl = 'https://github.com/jkschneider/gradle-summit-2017'
-        issueTrackerUrl = 'https://github.com/jkschneider/gradle-summit-2017/issues'
-        vcsUrl = 'https://github.com/jkschneider/gradle-summit-2017.git'
-        licenses = ['Apache-2.0']
-        version {
-            name = project.version
-            vcsTag = project.version
-        }
-    }
-}
